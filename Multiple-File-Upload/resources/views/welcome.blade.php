@@ -1,14 +1,14 @@
 @extends('Layout.App')
 
+@section('title','Multiple File Upload Using Laravel With Axios')
+
 @section('content')
 
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-
-                <button type="button" class="btn btn-success">Add New Input</button>
+                <button type="button" id="addNewFile" class="btn btn-success">Add New File</button>
                 <hr>
-
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -22,29 +22,9 @@
                         </tr>
                     </thead>
 
-                    <tbody>
-                        <tr>
-                            <td> <input type="file"/> </td>
-                            <td><button type="button" class="btn btn-primary btn-sm">Upload</button></td>
-                            <td><button type="button" class="btn btn-danger btn-sm">Cancel</button></td>
-                            <td>50 MB</td>
-                            <td>20 MB</td>
-                            <td>10%</td>
-                            <td>Success</td>
-                        </tr>
-
-                        <tr>
-                            <td> <input type="file"/> </td>
-                            <td><button type="button" class="btn btn-primary btn-sm">Upload</button></td>
-                            <td><button type="button" class="btn btn-danger btn-sm">Cancel</button></td>
-                            <td>100 MB</td>
-                            <td>50 MB</td>
-                            <td>50%</td>
-                            <td>Uploading..</td>
-                        </tr>
+                    <tbody class="fileList">
                     </tbody>
                 </table>
-
             </div>
         </div>
     </div>

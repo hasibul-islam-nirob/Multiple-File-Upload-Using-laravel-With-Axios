@@ -1,134 +1,71 @@
-// Owl Carousel Start..................
+
+$('#addNewFile').on('click',function (){
+    let newTableRow = "<tr>"+
+                            "<td><input type='file' class='fileInput form-control'/></td>"+
+                            "<td> <button type='button' class='uploadBtn btn btn-primary btn-sm'>Upload</button> </td>"+
+                            "<td><button type='button' class='removeBtn btn btn-danger btn-sm'>Remove</button></td>"+
+                            "<td class='fileSize'></td>"+
+                            "<td class='totalUploaded'></td>"+
+                            "<td class='uploadedPercent'></td>"+
+                            "<td class='progressStatus'></td>"+
+                        "</tr>";
+
+    $('.fileList').append(newTableRow);
 
 
+    $('.fileInput').on('change',function (){
+        let file = $(this).prop('files');
+        let fileSize =( (file[0].size) / (1024*1024) ).toFixed(2);
+        $(this).closest('tr').find('.fileSize').html(fileSize+"MB");
 
-$(document).ready(function() {
-    var one = $("#one");
-    var two = $("#two");
-
-    $('#customNextBtn').click(function() {
-        one.trigger('next.owl.carousel');
     })
-    $('#customPrevBtn').click(function() {
-        one.trigger('prev.owl.carousel');
+
+    $('.uploadBtn').on('click',function (event){
+        let uploadFile      = $(this).closest('tr').find('.fileInput').prop('files');
+        let totalUploaded   = $(this).closest('tr').find('.totalUploaded');
+        let uploadedPercent = $(this).closest('tr').find('.uploadedPercent');
+        let progressStatus  = $(this).closest('tr').find('.progressStatus');
+        let formData = new FormData();
+        formData.append('myFileKey',uploadFile[0]);
+        onFileUploadFile(formData, totalUploaded, uploadedPercent, progressStatus);
+        event.preventDefault();
+        event.stopImmediatePropagation();
     })
-    one.owlCarousel({
-        autoplay:true,
-        loop:true,
-        dot:true,
-        autoplayHoverPause:true,
-        autoplaySpeed:100,
-        margin:10,
-        responsive:{
-            0:{
-                items:1
-            },
-            600:{
-                items:2
-            },
-            1000:{
-                items:4
-            }
+
+    //Removed Row
+    $('.removeBtn').on('click',function (){
+        $(this).parents('tr').remove();
+    })
+
+})
+
+
+function onFileUploadFile(formData, totalUploaded, uploadedPercent, progressStatus){
+
+    let url = '/fileUploadUrl';
+    let config = {
+        headers:{'content-type':'multipart/form-data'},
+        onUploadProgress:function (progessEvent){
+            let upMb = (progessEvent.loaded / (1024*1024) ).toFixed(2) ;
+            let upPerMb = ( (progessEvent.loaded*100) / progessEvent.total ).toFixed(2);
+
+            totalUploaded.html(upMb+'MB');
+            uploadedPercent.html(upPerMb+'%');
         }
-    });
-
-    two.owlCarousel({
-        autoplay:true,
-        loop:true,
-        dot:true,
-        autoplayHoverPause:true,
-        autoplaySpeed:100,
-        margin:10,
-        responsive:{
-            0:{
-                items:1
-            },
-            600:{
-                items:1
-            },
-            1000:{
-                items:1
-            }
-        }
-    });
-
-});
-
-
-// Owl Carousel End..................
-
-
-
-
-
-
-$('#sendMSG').click(function (){
-    var name = $('#name').val();
-    var mobile = $('#mobile').val();
-    var email = $('#email').val();
-    var msg = $('#msg').val();
-    var valid = /\S+@\S+\.\S+/;
-    if (name.length == 0){
-
-        $('#sendMSG').html("Please Enter Your Name");
-        setTimeout(function (){
-            $('#sendMSG').html("Send");
-        },1000);
-
-    }else if (mobile.length == 0){
-
-        $('#sendMSG').html("Please Enter Your Mobile No");
-        setTimeout(function (){
-            $('#sendMSG').html("Send");
-        },1000);
-
-    }else if (!valid.test(email) ){
-
-        $('#sendMSG').html("E-Mail Not Valid");
-        setTimeout(function (){
-            $('#sendMSG').html("Send");
-        },1000);
-
-    }else if (msg.length == 0){
-        $('#sendMSG').html("Write Your Massage");
-        setTimeout(function (){
-            $('#sendMSG').html("Send");
-        },1000);
-    }else{
-
-        axios.post('/sendMassage',{
-            name:name,
-            mobile:mobile,
-            email:email,
-            massage:msg
-        })
-            .then(function (res){
-                if (res.status == 200 && res.data == 1){
-                    $('#sendMSG').html("Massage Send Success");
-
-                    $('#name').val('');
-                    $('#mobile').val('');
-                    $('#email').val('');
-                    $('#msg').val('');
-
-                    setTimeout(function (){
-                        $('#sendMSG').html("Send");
-                    },1000);
-                }else{
-                    $('#sendMSG').html("Massage Send Fail");
-                    setTimeout(function (){
-                        $('#sendMSG').html("Send");
-                    },1000);
-                }
-            }).catch(function (error){
-            $('#sendMSG').html("Something Went Wrong");
-            setTimeout(function (){
-                $('#sendMSG').html("Send");
-            },1000);
-        })
-
     }
 
 
+    axios.post(url, formData, config)
+        .then(function (res){
+            if (res.status == 200){
+                progressStatus.html('Upload Success');
+            }else{
+                progressStatus.html('Upload Failed');
+            }
+        }).catch(function (err){
+        progressStatus.html('Something Wrong');
+    })
 
-})
+
+
+}
